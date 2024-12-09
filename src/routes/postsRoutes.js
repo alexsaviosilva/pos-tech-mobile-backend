@@ -3,6 +3,7 @@ import PostController from "../controllers/postController.js";
 
 const routes = express.Router(); // Instancia as rotas
 
+
 /**
  * @swagger
  * /post:
@@ -26,6 +27,8 @@ const routes = express.Router(); // Instancia as rotas
  *                     type: string
  *                     description: Título do post
  */
+
+
 routes.get("/post", PostController.listarPost); // Controla a rota e invoca o controller
 
 /**
