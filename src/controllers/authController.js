@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { User } from "..../models/User.js";
+import User from "../models/User.js";
 
 
 const AuthController = {
@@ -22,25 +22,31 @@ const AuthController = {
 
     // Login do usuário
     async login(req, res) {
-        const { email, password } = req.body;
-
-        try {
-            const user = await User.findOne({ email });
-            if (!user) return res.status(404).json({ message: 'Usuário não encontrado' });
-
-            const isValid = await user.isValidPassword(password);
-            if (!isValid) return res.status(401).json({ message: 'Credenciais inválidas' });
-
-            // Geração do token JWT
-            const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
-                expiresIn: '1d',
-            });
-
-            res.status(200).json({ message: 'Login bem-sucedido', token });
-        } catch (error) {
-            res.status(500).json({ message: 'Erro no servidor', error });
-        }
-    },
+      const { email, password } = req.body;
+  
+      try {
+          const user = await User.findOne({ email });
+          if (!user) {
+              return res.status(404).json({ message: 'Usuário não encontrado' });
+          }
+  
+          const isValid = await user.isValidPassword(password);
+          if (!isValid) {
+              return res.status(401).json({ message: 'Credenciais inválidas' });
+          }
+  
+          // Geração do token JWT
+          const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
+              expiresIn: '1d',
+          });
+  
+          res.status(200).json({ message: 'Login bem-sucedido', token });
+      } catch (error) {
+          console.error('Erro no login:', error);  // Mostra detalhes do erro no console
+          res.status(500).json({ message: 'Erro no servidor', error: error.message });  // Retorna a mensagem de erro
+      }
+  }
+  
 };
 
 export default AuthController;

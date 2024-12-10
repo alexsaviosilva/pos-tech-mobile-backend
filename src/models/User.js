@@ -21,9 +21,14 @@ userSchema.pre('save', async function (next) {
 
 // Método para verificar a senha
 userSchema.methods.isValidPassword = async function (password) {
-    return await bcrypt.compare(password, this.password);
+    try {
+        return await bcrypt.compare(password, this.password);
+    } catch (error) {
+        console.error('Erro ao comparar a senha:', error);
+        throw error;  // Propaga o erro para o controlador
+    }
 };
 
-const User = mongoose.model('posts', postSchema);
+const User = mongoose.model('user', userSchema)
 
 export default User;

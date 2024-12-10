@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { User } from "..../models/User.js";
+import User from "../models/User.js";
 
 const authMiddleware = async (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];
@@ -27,7 +27,6 @@ const roleMiddleware = (roles) => {
             return res.status(403).json({ message: 'Acesso negado' });
         }
         next();
-    };
+    }
 };
-
-module.exports = { authMiddleware, roleMiddleware };
+export  { authMiddleware, roleMiddleware };
