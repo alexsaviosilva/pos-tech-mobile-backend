@@ -1,5 +1,6 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+
+import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
 
 // Definição do esquema de usuário
 const userSchema = new mongoose.Schema({
@@ -23,4 +24,6 @@ userSchema.methods.isValidPassword = async function (password) {
     return await bcrypt.compare(password, this.password);
 };
 
-module.exports = mongoose.model('User', userSchema);
+const User = mongoose.model('posts', postSchema);
+
+export default User;
