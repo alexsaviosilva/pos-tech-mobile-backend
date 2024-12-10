@@ -2,6 +2,8 @@
 import express from "express";
 import autores from "./autoresRoutes.js";
 import post from "./postsRoutes.js";
+import auth from "./authRoutes.js"
+import area from "./areaRoutes.js"
 import { serveSwagger, setupSwagger } from '../config/swagger.js';
 
 
@@ -11,7 +13,8 @@ const routes = (app) => {
   app.use(express.json());
   app.use(autores);
   app.use(post);
-  
+  app.use(auth);
+  app.use(area);
   // Rota para a documentação do Swagger
   app.use("/api-docs", serveSwagger, setupSwagger); 
 
