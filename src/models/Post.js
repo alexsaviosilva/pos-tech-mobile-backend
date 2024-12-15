@@ -1,13 +1,33 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const postSchema = new mongoose.Schema({
-  id: { type: mongoose.Schema.Types.ObjectId },
-  titulo: { type: String, required: true },
-  descricao: { type: String },
-  data: { type: mongoose.Schema.Types.Date },
-  autor: { type: mongoose.Schema.Types.ObjectId, ref: 'autores', required: true }, // Refere-se ao modelo "autores"
-}, { versionKey: false });
+const postSchema = new mongoose.Schema(
+  {
+    titulo: {
+      type: String,
+      required: [true, "O título é obrigatório."],
+      trim: true, 
+    },
+    descricao: {
+      type: String,
+      required: [true, "A descrição é obrigatória."],
+      trim: true,
+    },
+    data: {
+      type: Date,
+      default: Date.now, 
+    },
+    autor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Autor",
+      required: [true, "O autor é obrigatório."],
+    },
+  },
+  {
+    versionKey: false, 
+    timestamps: true
+  }
+);
 
-const post = mongoose.model('posts', postSchema);
+const Post = mongoose.model("Post", postSchema);
 
-export default post;
+export default Post;

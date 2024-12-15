@@ -3,10 +3,16 @@ import AuthController from "../controllers/authController.js";
 
 const router = express.Router();
 
-// Registro de usuário
-router.post('/register', AuthController.register);
+/**
+ * Rota para registrar um novo usuário.
+ * Endpoint: /auth/register
+ */
+router.post("/register", AuthController.register);
 
-// Login do usuário
-router.post('/login', AuthController.login);
+/**
+ * Rota para login do usuário.
+ * Endpoint: /auth/login
+ */
+router.post("/login", AuthController.login);
 
 export default router;

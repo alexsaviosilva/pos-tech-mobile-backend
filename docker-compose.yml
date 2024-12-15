@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "3000:3000" 
+    depends_on:
+      - db
+    environment:
+      - DB_CONNECTION_STRING=mongodb://db:27017/myblog 
+    networks:
+      - app-network #
+
+  front:
+    build:
+      context: ../pos-tech-fase-II
+      dockerfile: ./docker/Dockerfile 
+    ports:
+      - "3001:3000" 
+    environment:
+      - REACT_APP_API_URL=http://app:3000 
+    depends_on:
+      - app 
+    networks:
+      - app-network 
+
+  db:
+    image: mongo:latest 
+    container_name: mongo 
+    ports:
+      - "27017:27017" 
+    networks:
+      - app-network 
+
+networks:
+  app-network:
+    driver: bridge 
