@@ -5,42 +5,44 @@ const postSchema = new mongoose.Schema(
     titulo: {
       type: String,
       required: [true, "O título é obrigatório."],
-      trim: true,
-      minlength: [3, "O título deve ter no mínimo 3 caracteres."],
-      maxlength: [100, "O título deve ter no máximo 100 caracteres."],
+      trim: true, // Remove espaços extras
     },
     descricao: {
       type: String,
       required: [true, "A descrição é obrigatória."],
       trim: true,
-      minlength: [10, "A descrição deve ter no mínimo 10 caracteres."],
-      maxlength: [1000, "A descrição deve ter no máximo 1000 caracteres."],
     },
     categoria: {
       type: String,
-      enum: ["Matemática", "História", "Ciências", "Português", "Geografia"],
       required: [true, "A categoria é obrigatória."],
-    },
-    data: {
-      type: Date,
-      default: Date.now, // Define a data atual como padrão
-    },
-    imagem: {
-      type: String,
-      default: "placeholder.png", // Nome do arquivo padrão caso nenhuma imagem seja fornecida
+      enum: [
+        "Matemática",
+        "História",
+        "Ciências",
+        "Português",
+        "Geografia",
+      ], // Lista de categorias aceitas
+      trim: true,
     },
     autor: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "autores", // Referência ao modelo de autores
+      ref: "autores", // Relaciona com a coleção 'autores'
       required: [true, "O autor é obrigatório."],
+    },
+    data: {
+      type: Date,
+      default: Date.now, // Atribui a data atual como padrão
+    },
+    imagem: {
+      type: String,
+      default: "placeholder.png", // Nome padrão caso não seja enviada imagem
     },
   },
   {
-    versionKey: false, 
-    timestamps: true, 
+    timestamps: true, // Cria automaticamente 'createdAt' e 'updatedAt'
+    versionKey: false, // Remove o campo '__v' do documento
   }
 );
 
-const Post = mongoose.model("Post", postSchema);
-
-export default Post;
+const post = mongoose.model("posts", postSchema);
+export default post;

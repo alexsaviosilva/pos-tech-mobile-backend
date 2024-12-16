@@ -1,13 +1,10 @@
 import express from "express";
-import PostController from "../controllers/PostController.js";
+import PostController from "../controllers/postController.js";
 import { authMiddleware, roleMiddleware } from "../middlewares/authMiddleware.js";
 
 const routes = express.Router();
 
-/**
- * Middleware de depuração do Token JWT.
- * Auxilia a verificar se o token está presente no cabeçalho Authorization.
- */
+
 const debugAuthMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
   console.log("Cabeçalho Authorization recebido:", authHeader);
@@ -18,11 +15,8 @@ const debugAuthMiddleware = (req, res, next) => {
   next();
 };
 
-/**
- * Rota GET - Listar todas as publicações
- * - Middleware de autenticação
- * - Middleware de verificação de perfil (professor)
- */
+
+
 routes.get(
   "/publicacoes",
   authMiddleware,
@@ -31,11 +25,6 @@ routes.get(
   PostController.listarPost
 );
 
-/**
- * Rota GET - Buscar publicação por ID
- * - Middleware de autenticação
- * - Middleware de verificação de perfil (professor)
- */
 routes.get(
   "/publicacoes/:id",
   authMiddleware,
@@ -44,11 +33,6 @@ routes.get(
   PostController.listarPostPorId
 );
 
-/**
- * Rota POST - Cadastrar nova publicação
- * - Middleware de autenticação
- * - Middleware de verificação de perfil (professor)
- */
 routes.post(
   "/publicacoes",
   authMiddleware,
@@ -57,11 +41,6 @@ routes.post(
   PostController.cadastrarPost
 );
 
-/**
- * Rota PUT - Atualizar publicação existente por ID
- * - Middleware de autenticação
- * - Middleware de verificação de perfil (professor)
- */
 routes.put(
   "/publicacoes/:id",
   authMiddleware,
@@ -70,11 +49,6 @@ routes.put(
   PostController.atualizarPost
 );
 
-/**
- * Rota DELETE - Excluir publicação por ID
- * - Middleware de autenticação
- * - Middleware de verificação de perfil (professor)
- */
 routes.delete(
   "/publicacoes/:id",
   authMiddleware,
