@@ -203,5 +203,4 @@ Copiar código
 1. Crie um arquivo `README.md` no repositório do **Back-End** (`pos-tech-fase-II`) e cole o primeiro bloco.
 2. Crie outro `README.md` no repositório do **Front-End** (`pos-tech-fase-III`) e cole o segundo bloco.
 
-Agora tudo está **estruturado, claro e em formato Markdown perfeito**! 🚀
 
