@@ -1,92 +1,145 @@
-// importação do modelo Post
-// para ser chamado pelo controller
-//import mongoose from "mongoose";
 import post from "../models/Post.js";
 import { autores } from "../models/Autor.js";
 
 class PostController {
-    static async listarPost(req, res) {
-        try {
-            // controller chama o model Livro através
-            // do método livro.find({})
-            const listaPost = await post.find({}).populate("autor").exec();
-            res.status(200).json(listaPost);
-        } catch (erro) {
-            res
-            .status(500)
-            .json({ message: `${erro.message} - falha na requisição` });
-        }
-    }
+  // Listar todas as publicações com os dados do autor
+  static async listarPost(req, res) {
+    try {
+      const listaPost = await post
+        .find({})
+        .populate("autor", "nome materia") // Traz apenas os campos nome e materia do autor
+        .exec();
 
-    static async listarPostPorTitulo(req,res){
-        const titulo = req.query.titulo;
-        try {
-            const pesquisaPorTitulo = await post.find({titulo: titulo});//primeira propriedade passada como objeto é o titulo do livro e a segunda é a query
-            res.status(200).json(pesquisaPorTitulo);
-        } catch (erro) {
-            res
-            .status(500)
-            .json({ message: `${erro.message} - falha na busca por titulo` });
-        }
-    }
+      if (listaPost.length === 0) {
+        return res.status(200).json({ message: "Nenhum post encontrado." });
+      }
 
-    static async listarPostPorId(req, res) {
-        try {
-            // controller chama o model Livro através
-            // do método livro.find({})
-            const id = req.params.id;
-            const postEncontrado = await post.findById(id).populate("autor").exec();
-            res.status(200).json(postEncontrado);
-        } catch (erro) {
-            res
-            .status(500)
-            .json({ message: `${erro.message} - falha na requisição do post` });
-        }
+      res.status(200).json(listaPost);
+    } catch (erro) {
+      res.status(500).json({ message: `Erro ao listar posts: ${erro.message}` });
     }
+  }
 
-    static async cadastrarPost (req, res) {
-        const novoPost = req.body;
-        const { autor } = req.body;//busca autor no body da requisição
-        const autorId = autor._id; //extrai o id do autor
-        try {
-          const autorEncontrado = await autores.findById(autorId);
-          const postCompleto = { ...novoPost, autor: { ...autorEncontrado._doc }};
-          const postCriado = await post.create(postCompleto);
-          res.status(201).json({ message: "criado com sucesso", post: postCriado });
-        } catch (erro) {
-          res.status(500).json({ message: `${erro.message} - falha ao cadastrar post: ${autor}`});
+  // Listar postagens por título (query parameter)
+  static async listarPostPorTitulo(req, res) {
+    const { titulo } = req.query;
+
+    try {
+      const posts = await post
+        .find({ titulo })
+        .populate("autor", "nome materia")
+        .exec();
+
+      if (posts.length === 0) {
+        return res.status(404).json({ message: "Nenhum post encontrado com este título." });
+      }
+
+      res.status(200).json(posts);
+    } catch (erro) {
+      res.status(500).json({ message: `Erro ao buscar post por título: ${erro.message}` });
+    }
+  }
+
+  // Buscar postagem por ID
+  static async listarPostPorId(req, res) {
+    const { id } = req.params;
+
+    try {
+      const postEncontrado = await post
+        .findById(id)
+        .populate("autor", "nome materia")
+        .exec();
+
+      if (!postEncontrado) {
+        return res.status(404).json({ message: "Post não encontrado." });
+      }
+
+      res.status(200).json(postEncontrado);
+    } catch (erro) {
+      res.status(500).json({ message: `Erro ao buscar post por ID: ${erro.message}` });
+    }
+  }
+
+  // Cadastrar um novo post com autor
+  static async cadastrarPost(req, res) {
+    const { titulo, descricao, autor } = req.body;
+
+    try {
+      // Validação do autor
+      const autorEncontrado = await autores.findById(autor);
+
+      if (!autorEncontrado) {
+        return res.status(404).json({ message: "Autor não encontrado. Verifique o ID fornecido." });
+      }
+
+      const novoPost = new post({
+        titulo,
+        descricao,
+        autor: autorEncontrado._id,
+        data: new Date(), // Data de criação automática
+      });
+
+      const postCriado = await novoPost.save();
+
+      res.status(201).json({
+        message: "Post criado com sucesso!",
+        post: postCriado,
+      });
+    } catch (erro) {
+      res.status(500).json({ message: `Erro ao cadastrar post: ${erro.message}` });
+    }
+  }
+
+  // Atualizar uma publicação pelo ID
+  static async atualizarPost(req, res) {
+    const { id } = req.params;
+    const { titulo, descricao, autor } = req.body;
+
+    try {
+      // Valida se o autor é válido caso seja enviado
+      if (autor) {
+        const autorEncontrado = await autores.findById(autor);
+
+        if (!autorEncontrado) {
+          return res.status(404).json({ message: "Autor não encontrado. Verifique o ID fornecido." });
         }
       }
 
-      static async atualizarPost(req, res) {
-        try {
-            // controller chama o model Livro através
-            // do método livro.findByIdAndUpdate({})
-            const id = req.params.id;
-            await post.findByIdAndUpdate(id,req.body);
-            res.status(200).json({message:"Post atualizado"});
-        } catch (erro) {
-            res
-            .status(500)
-            .json({ message: `${erro.message} - falha na atualização do post` });
-        }
+      const postAtualizado = await post.findByIdAndUpdate(
+        id,
+        { titulo, descricao, autor },
+        { new: true, runValidators: true }
+      );
+
+      if (!postAtualizado) {
+        return res.status(404).json({ message: "Post não encontrado para atualização." });
+      }
+
+      res.status(200).json({
+        message: "Post atualizado com sucesso!",
+        post: postAtualizado,
+      });
+    } catch (erro) {
+      res.status(500).json({ message: `Erro ao atualizar post: ${erro.message}` });
     }
+  }
 
-    static async excluirPost(req, res) {
-        try {
-            // controller chama o model Post através
-            // do método livro.findByIdAndUpdate({})
-            const id = req.params.id;
-            await post.findByIdAndDelete(id);
-            res.status(200).json({message:"Post excluído"});
-        } catch (erro) {
-            res
-            .status(500)
-            .json({ message: `${erro.message} - falha na exclusão do post` });
-        }
+  // Excluir uma publicação pelo ID
+  static async excluirPost(req, res) {
+    const { id } = req.params;
+
+    try {
+      const postExcluido = await post.findByIdAndDelete(id);
+
+      if (!postExcluido) {
+        return res.status(404).json({ message: "Post não encontrado para exclusão." });
+      }
+
+      res.status(200).json({ message: "Post excluído com sucesso!" });
+    } catch (erro) {
+      res.status(500).json({ message: `Erro ao excluir post: ${erro.message}` });
     }
-    
- }
+  }
+}
 
-
- export default PostController;
+export default PostController;

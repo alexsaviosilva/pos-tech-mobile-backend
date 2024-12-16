@@ -1,11 +1,26 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const autorSchema = new mongoose.Schema({
-  id: { type: mongoose.Schema.Types.ObjectId },
-  nome: { type: String, required: true },
-  materia: { type: String }
-}, { versionKey: false });
+// Definição do esquema para Autor
+const autorSchema = new mongoose.Schema(
+  {
+    nome: {
+      type: String,
+      required: [true, "O campo 'nome' é obrigatório."],
+      trim: true, // Remove espaços extras
+    },
+    materia: {
+      type: String,
+      trim: true,
+      default: "Não especificada", // Valor padrão caso não seja informado
+    },
+  },
+  {
+    timestamps: true, // Adiciona automaticamente 'createdAt' e 'updatedAt'
+    versionKey: false, // Remove o campo '__v'
+  }
+);
 
-const autores = mongoose.model('autores', autorSchema);
+// Criação do modelo 'autores' com base no esquema
+const autores = mongoose.model("autores", autorSchema);
 
 export { autores, autorSchema };
