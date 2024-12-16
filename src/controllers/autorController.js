@@ -1,7 +1,6 @@
 import { autores } from "../models/Autor.js";
 
 class AutorController {
-  // Lista todos os autores
   static async listarAutores(req, res) {
     try {
       const listaAutores = await autores.find({});
@@ -14,7 +13,6 @@ class AutorController {
     }
   }
 
-  // Lista autor por ID
   static async listarAutorPorId(req, res) {
     try {
       const id = req.params.id;
@@ -28,7 +26,6 @@ class AutorController {
     }
   }
 
-  // Cadastra um novo autor
   static async cadastrarAutor(req, res) {
     try {
       const { nome, materia } = req.body;
@@ -46,7 +43,6 @@ class AutorController {
     }
   }
 
-  // Atualiza um autor
   static async atualizarAutor(req, res) {
     try {
       const id = req.params.id;
@@ -62,7 +58,6 @@ class AutorController {
     }
   }
 
-  // Exclui um autor
   static async excluirAutor(req, res) {
     try {
       const id = req.params.id;

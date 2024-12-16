@@ -2,12 +2,11 @@ import post from "../models/Post.js";
 import { autores } from "../models/Autor.js";
 
 class PostController {
-  // Listar todas as publicações com dados do autor
   static async listarPost(req, res) {
     try {
       const listaPost = await post
         .find({})
-        .populate("autor", "nome materia") // Pega apenas os campos 'nome' e 'materia' do autor
+        .populate("autor", "nome materia") 
         .exec();
 
       if (listaPost.length === 0) {
@@ -20,7 +19,6 @@ class PostController {
     }
   }
 
-  // Buscar uma publicação por ID
   static async listarPostPorId(req, res) {
     const { id } = req.params;
 
@@ -40,27 +38,23 @@ class PostController {
     }
   }
 
-  // Cadastrar uma nova publicação
   static async cadastrarPost(req, res) {
     const { titulo, descricao, categoria, autor } = req.body;
 
     try {
-      // Validação do autor
       const autorEncontrado = await autores.findById(autor);
       if (!autorEncontrado) {
         return res.status(404).json({ message: "Autor não encontrado. Verifique o ID fornecido." });
       }
 
-      // Validação do campo categoria
       if (!categoria) {
         return res.status(400).json({ message: "O campo 'categoria' é obrigatório." });
       }
 
-      // Criação da publicação
       const novaPublicacao = new post({
         titulo,
         descricao,
-        categoria, // Inclui a categoria como obrigatória
+        categoria, 
         autor: autorEncontrado._id,
         data: new Date(),
       });
@@ -76,13 +70,11 @@ class PostController {
     }
   }
 
-  // Atualizar uma publicação existente
   static async atualizarPost(req, res) {
     const { id } = req.params;
     const { titulo, descricao, categoria, autor } = req.body;
 
     try {
-      // Validação opcional do autor, caso seja enviado
       if (autor) {
         const autorEncontrado = await autores.findById(autor);
         if (!autorEncontrado) {
@@ -90,12 +82,10 @@ class PostController {
         }
       }
 
-      // Validação opcional do campo categoria
       if (!categoria) {
         return res.status(400).json({ message: "O campo 'categoria' é obrigatório." });
       }
 
-      // Atualização do post
       const postAtualizado = await post.findByIdAndUpdate(
         id,
         { titulo, descricao, categoria, autor },
@@ -115,7 +105,6 @@ class PostController {
     }
   }
 
-  // Excluir uma publicação por ID
   static async excluirPost(req, res) {
     const { id } = req.params;
 

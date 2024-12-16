@@ -4,10 +4,13 @@ import { authMiddleware, roleMiddleware } from "../middlewares/authMiddleware.js
 
 const routes = express.Router();
 
-
+/**
+ * Middleware para debug do Token de Autenticação
+ * Mostra o cabeçalho Authorization recebido
+ */
 const debugAuthMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  console.log("Cabeçalho Authorization recebido:", authHeader);
+  console.log("🛡️ Cabeçalho Authorization recebido:", authHeader);
 
   if (!authHeader) {
     return res.status(401).json({ message: "Token não fornecido. Faça login novamente." });
@@ -15,21 +18,27 @@ const debugAuthMiddleware = (req, res, next) => {
   next();
 };
 
-
+/**
+ * Rotas relacionadas às publicações (posts)
+ */
 
 routes.get(
   "/publicacoes",
   authMiddleware,
-  roleMiddleware(["professor"]),
-  debugAuthMiddleware,
+  async (req, res, next) => {
+    console.log("🔍 Solicitando lista de publicações...");
+    next();
+  },
   PostController.listarPost
 );
 
 routes.get(
   "/publicacoes/:id",
   authMiddleware,
-  roleMiddleware(["professor"]),
-  debugAuthMiddleware,
+  async (req, res, next) => {
+    console.log(`🔍 Solicitando publicação com ID: ${req.params.id}`);
+    next();
+  },
   PostController.listarPostPorId
 );
 
@@ -38,6 +47,10 @@ routes.post(
   authMiddleware,
   roleMiddleware(["professor"]),
   debugAuthMiddleware,
+  async (req, res, next) => {
+    console.log("📝 Tentativa de criação de publicação. Dados recebidos:", req.body);
+    next();
+  },
   PostController.cadastrarPost
 );
 
@@ -46,6 +59,10 @@ routes.put(
   authMiddleware,
   roleMiddleware(["professor"]),
   debugAuthMiddleware,
+  async (req, res, next) => {
+    console.log(`🔄 Tentativa de atualização da publicação com ID: ${req.params.id}`);
+    next();
+  },
   PostController.atualizarPost
 );
 
@@ -54,6 +71,10 @@ routes.delete(
   authMiddleware,
   roleMiddleware(["professor"]),
   debugAuthMiddleware,
+  async (req, res, next) => {
+    console.log(`🗑️ Tentativa de exclusão da publicação com ID: ${req.params.id}`);
+    next();
+  },
   PostController.excluirPost
 );
 
