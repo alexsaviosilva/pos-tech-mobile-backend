@@ -1,5 +1,5 @@
 import post from "../models/Post.js";
-import { autores } from "../models/Autor.js";
+import User from "../models/User.js";
 
 class PostController {
   static async listarPost(req, res) {
@@ -42,7 +42,7 @@ class PostController {
     const { titulo, descricao, categoria, autor } = req.body;
 
     try {
-      const autorEncontrado = await autores.findById(autor);
+      const autorEncontrado = await User.findById(autor);
       if (!autorEncontrado) {
         return res.status(404).json({ message: "Autor não encontrado. Verifique o ID fornecido." });
       }
@@ -76,7 +76,7 @@ class PostController {
 
     try {
       if (autor) {
-        const autorEncontrado = await autores.findById(autor);
+        const autorEncontrado = await User.findById(autor);
         if (!autorEncontrado) {
           return res.status(404).json({ message: "Autor não encontrado. Verifique o ID fornecido." });
         }

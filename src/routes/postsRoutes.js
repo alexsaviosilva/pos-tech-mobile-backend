@@ -24,7 +24,6 @@ const debugAuthMiddleware = (req, res, next) => {
 
 routes.get(
   "/publicacoes",
-  authMiddleware,
   async (req, res, next) => {
     console.log("🔍 Solicitando lista de publicações...");
     next();

@@ -1,5 +1,4 @@
 import express from "express";
-import autores from "./autoresRoutes.js";
 import post from "./postsRoutes.js";
 import auth from "./authRoutes.js";
 import area from "./areaRoutes.js";
@@ -15,7 +14,6 @@ const routes = (app) => {
   app.use(express.json());
 
   // Definição de rotas
-  app.use("/autores", autores); // Rotas para Autores
   app.use("/posts", post); // Rotas para Publicações
   app.use("/auth", auth); // Rotas para Autenticação
   app.use("/area", area); // Rotas para Área
