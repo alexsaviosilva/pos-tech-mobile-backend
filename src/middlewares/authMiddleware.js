@@ -31,6 +31,7 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
+
 // Middleware para validar a role do usuário
 const roleMiddleware = (roles) => {
   return (req, res, next) => {
