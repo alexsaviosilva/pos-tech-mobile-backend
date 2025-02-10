@@ -10,13 +10,9 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: [true, 'A descrição é obrigatória'],
   },
-  categoria: {
-    type: String,
-    required: [true, 'A categoria é obrigatória'],
-  },
   autor: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',  // Certifique-se de que está referenciando o modelo correto
+    ref: 'User', 
     required: [true, 'O autor é obrigatório'],
   },
   data: {

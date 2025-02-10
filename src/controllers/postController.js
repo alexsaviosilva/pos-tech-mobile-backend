@@ -2,11 +2,29 @@ import post from "../models/Post.js";
 import User from "../models/User.js";
 
 class PostController {
+  // Método para listar posts de um autor específico
+  static async listarPostsPorAutor(req, res) {
+    try {
+      const autorId = req.params.autorId;
+      const posts = await post.find({ "autor": autorId });  // Filtrando diretamente pelo ID do autor
+
+
+      if (posts.length > 0) {
+        res.status(200).json(posts);
+      } else {
+        res.status(404).json({ message: "Nenhum post encontrado para este autor." });
+      }
+    } catch (error) {
+      console.error("Erro ao listar posts do autor:", error);
+      res.status(500).json({ message: "Erro interno do servidor." });
+    }
+  }
+
   static async listarPost(req, res) {
     try {
       const listaPost = await post
         .find({})
-        .populate("autor", "nome materia") 
+        .populate("autor", "name disciplina") 
         .exec();
 
       if (listaPost.length === 0) {
@@ -25,7 +43,7 @@ class PostController {
     try {
       const postEncontrado = await post
         .findById(id)
-        .populate("autor", "nome materia")
+        .populate("autor", "name disciplina") 
         .exec();
 
       if (!postEncontrado) {
@@ -39,7 +57,7 @@ class PostController {
   }
 
   static async cadastrarPost(req, res) {
-    const { titulo, descricao, categoria, autor } = req.body;
+    const {titulo, descricao, autor, imagem} = req.body;
 
     try {
       const autorEncontrado = await User.findById(autor);
@@ -47,15 +65,12 @@ class PostController {
         return res.status(404).json({ message: "Autor não encontrado. Verifique o ID fornecido." });
       }
 
-      if (!categoria) {
-        return res.status(400).json({ message: "O campo 'categoria' é obrigatório." });
-      }
-
       const novaPublicacao = new post({
         titulo,
         descricao,
-        categoria, 
         autor: autorEncontrado._id,
+        nomeAutor: autorEncontrado.nome,
+        imagem,
         data: new Date(),
       });
 
@@ -72,7 +87,7 @@ class PostController {
 
   static async atualizarPost(req, res) {
     const { id } = req.params;
-    const { titulo, descricao, categoria, autor } = req.body;
+    const {titulo, descricao, autor, imagem} = req.body;
 
     try {
       if (autor) {
@@ -88,7 +103,7 @@ class PostController {
 
       const postAtualizado = await post.findByIdAndUpdate(
         id,
-        { titulo, descricao, categoria, autor },
+        { titulo, descricao, autor, imagem },
         { new: true, runValidators: true }
       );
 

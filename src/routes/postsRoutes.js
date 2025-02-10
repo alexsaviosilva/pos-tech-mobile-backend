@@ -22,6 +22,16 @@ const debugAuthMiddleware = (req, res, next) => {
  * Rotas relacionadas às publicações (posts)
  */
 
+// Rota para filtrar posts pelo _id do autor
+routes.get(
+  "/publicacoes/autor/:autorId",
+  async (req, res, next) => {
+    console.log(`🔍 Solicitando publicações do autor com ID: ${req.params.autorId}`);
+    next();
+  },
+  PostController.listarPostsPorAutor
+);
+
 routes.get(
   "/publicacoes",
   async (req, res, next) => {
@@ -33,7 +43,6 @@ routes.get(
 
 routes.get(
   "/publicacoes/:id",
-  authMiddleware,
   async (req, res, next) => {
     console.log(`🔍 Solicitando publicação com ID: ${req.params.id}`);
     next();
