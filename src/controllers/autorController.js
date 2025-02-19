@@ -3,7 +3,8 @@ import User from "../models/User.js";
 class AutorController {
   static async listarAutores(req, res) {
     try {
-      const listaAutores = await User.find({ role: "professor" });
+      // Buscar todos os autores, sem restringir ao role 'professor'
+      const listaAutores = await User.find();
 
       if (listaAutores.length === 0) {
         return res.status(200).json({ message: "Nenhum autor encontrado." });
@@ -20,8 +21,8 @@ class AutorController {
       const id = req.params.id;
       const autorEncontrado = await User.findById(id);
 
-      if (!autorEncontrado || autorEncontrado.role !== "professor") {
-        return res.status(404).json({ message: "Autor não encontrado ou não é um professor." });
+      if (!autorEncontrado) {
+        return res.status(404).json({ message: "Autor não encontrado." });
       }
 
       res.status(200).json(autorEncontrado);
@@ -35,12 +36,17 @@ class AutorController {
       const { name, email, password, role, disciplina } = req.body;
 
       // Verificando se os dados obrigatórios foram passados
-      if (!name || !email || !password || role !== "professor" || !disciplina) {
-        return res.status(400).json({ message: "Campos obrigatórios não preenchidos ou role incorreto." });
+      if (!name || !email || !password || !role) {
+        return res.status(400).json({ message: "Campos obrigatórios não preenchidos." });
       }
 
-      // Criação do autor com role 'professor'
-      const novoAutor = new User({ name, email, password, role, disciplina });
+      // Se o role for 'professor', disciplina é obrigatória
+      if (role === "professor" && !disciplina) {
+        return res.status(400).json({ message: "Professores devem ter uma disciplina associada." });
+      }
+
+      // Criação do autor
+      const novoAutor = new User({ name, email, password, role, disciplina: role === "professor" ? disciplina : undefined });
       const autorCriado = await novoAutor.save();
 
       res.status(201).json({ message: "Autor criado com sucesso!", autor: autorCriado });
@@ -54,11 +60,11 @@ class AutorController {
       const id = req.params.id;
       const { name, email, password, disciplina } = req.body;
 
-      // Verificar se o usuário encontrado é um professor
+      // Verificar se o autor existe
       const autorEncontrado = await User.findById(id);
 
-      if (!autorEncontrado || autorEncontrado.role !== "professor") {
-        return res.status(404).json({ message: "Autor não encontrado ou não é um professor." });
+      if (!autorEncontrado) {
+        return res.status(404).json({ message: "Autor não encontrado." });
       }
 
       // Atualizar dados do autor
@@ -77,12 +83,12 @@ class AutorController {
   static async excluirAutor(req, res) {
     try {
       const id = req.params.id;
-      
-      // Verificar se o usuário encontrado é um professor
+
+      // Verificar se o autor existe
       const autorEncontrado = await User.findById(id);
 
-      if (!autorEncontrado || autorEncontrado.role !== "professor") {
-        return res.status(404).json({ message: "Autor não encontrado ou não é um professor." });
+      if (!autorEncontrado) {
+        return res.status(404).json({ message: "Autor não encontrado." });
       }
 
       // Excluir autor

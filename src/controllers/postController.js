@@ -1,13 +1,13 @@
-import post from "../models/Post.js";
+import Post from "../models/Post.js";
 import User from "../models/User.js";
 
 class PostController {
-  // Método para listar posts de um autor específico
   static async listarPostsPorAutor(req, res) {
     try {
       const autorId = req.params.autorId;
-      const posts = await post.find({ "autor": autorId });  // Filtrando diretamente pelo ID do autor
+      console.log(`🔍 Buscando publicações do autor ${autorId}...`);
 
+      const posts = await Post.find({ autor: autorId }).populate("autor", "name disciplina");
 
       if (posts.length > 0) {
         res.status(200).json(posts);
@@ -15,17 +15,16 @@ class PostController {
         res.status(404).json({ message: "Nenhum post encontrado para este autor." });
       }
     } catch (error) {
-      console.error("Erro ao listar posts do autor:", error);
+      console.error("🚨 Erro ao listar posts do autor:", error);
       res.status(500).json({ message: "Erro interno do servidor." });
     }
   }
 
   static async listarPost(req, res) {
     try {
-      const listaPost = await post
-        .find({})
-        .populate("autor", "name disciplina") 
-        .exec();
+      console.log("📄 Buscando todas as publicações...");
+
+      const listaPost = await Post.find({}).populate("autor", "name disciplina");
 
       if (listaPost.length === 0) {
         return res.status(200).json({ message: "Nenhuma publicação encontrada." });
@@ -33,6 +32,7 @@ class PostController {
 
       res.status(200).json(listaPost);
     } catch (erro) {
+      console.error("🚨 Erro ao listar publicações:", erro);
       res.status(500).json({ message: `Erro ao listar publicações: ${erro.message}` });
     }
   }
@@ -41,10 +41,9 @@ class PostController {
     const { id } = req.params;
 
     try {
-      const postEncontrado = await post
-        .findById(id)
-        .populate("autor", "name disciplina") 
-        .exec();
+      console.log(`🔎 Buscando publicação com ID: ${id}...`);
+
+      const postEncontrado = await Post.findById(id).populate("autor", "name disciplina");
 
       if (!postEncontrado) {
         return res.status(404).json({ message: "Publicação não encontrada." });
@@ -52,26 +51,27 @@ class PostController {
 
       res.status(200).json(postEncontrado);
     } catch (erro) {
+      console.error("🚨 Erro ao buscar publicação:", erro);
       res.status(500).json({ message: `Erro ao buscar publicação por ID: ${erro.message}` });
     }
   }
 
   static async cadastrarPost(req, res) {
-    const {titulo, descricao, autor, imagem} = req.body;
+    const { titulo, descricao, autor, imagem } = req.body;
 
     try {
+      console.log("📝 Criando nova publicação...");
+
       const autorEncontrado = await User.findById(autor);
       if (!autorEncontrado) {
         return res.status(404).json({ message: "Autor não encontrado. Verifique o ID fornecido." });
       }
 
-      const novaPublicacao = new post({
+      const novaPublicacao = new Post({
         titulo,
         descricao,
         autor: autorEncontrado._id,
-        nomeAutor: autorEncontrado.nome,
         imagem,
-        data: new Date(),
       });
 
       const postCriado = await novaPublicacao.save();
@@ -81,15 +81,18 @@ class PostController {
         post: postCriado,
       });
     } catch (erro) {
+      console.error("🚨 Erro ao cadastrar publicação:", erro);
       res.status(500).json({ message: `Erro ao cadastrar publicação: ${erro.message}` });
     }
   }
 
   static async atualizarPost(req, res) {
     const { id } = req.params;
-    const {titulo, descricao, autor, imagem} = req.body;
+    const { titulo, descricao, autor, imagem } = req.body;
 
     try {
+      console.log(`🔄 Atualizando publicação ID: ${id}`);
+
       if (autor) {
         const autorEncontrado = await User.findById(autor);
         if (!autorEncontrado) {
@@ -97,11 +100,7 @@ class PostController {
         }
       }
 
-      if (!categoria) {
-        return res.status(400).json({ message: "O campo 'categoria' é obrigatório." });
-      }
-
-      const postAtualizado = await post.findByIdAndUpdate(
+      const postAtualizado = await Post.findByIdAndUpdate(
         id,
         { titulo, descricao, autor, imagem },
         { new: true, runValidators: true }
@@ -116,6 +115,7 @@ class PostController {
         post: postAtualizado,
       });
     } catch (erro) {
+      console.error("🚨 Erro ao atualizar publicação:", erro);
       res.status(500).json({ message: `Erro ao atualizar publicação: ${erro.message}` });
     }
   }
@@ -124,7 +124,9 @@ class PostController {
     const { id } = req.params;
 
     try {
-      const postExcluido = await post.findByIdAndDelete(id);
+      console.log(`🗑️ Excluindo publicação ID: ${id}`);
+
+      const postExcluido = await Post.findByIdAndDelete(id);
 
       if (!postExcluido) {
         return res.status(404).json({ message: "Publicação não encontrada para exclusão." });
@@ -132,6 +134,7 @@ class PostController {
 
       res.status(200).json({ message: "Publicação excluída com sucesso!" });
     } catch (erro) {
+      console.error("🚨 Erro ao excluir publicação:", erro);
       res.status(500).json({ message: `Erro ao excluir publicação: ${erro.message}` });
     }
   }

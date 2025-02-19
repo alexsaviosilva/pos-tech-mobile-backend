@@ -31,12 +31,14 @@ const userSchema = new mongoose.Schema(
     },
     disciplina: {
       type: String,
-      required: function () {
-        return this.role === "professor";
-      },
+      // Não marcar como obrigatório diretamente
       validate: {
         validator: function (value) {
-          return this.role !== "professor" || !!value; 
+          // Se o role for professor, verifica se disciplina não está vazio
+          if (this.role === "professor") {
+            return !!value; // Se for professor, disciplina precisa ter valor
+          }
+          return true; // Se for aluno ou admin, não é necessário
         },
         message: "Professores devem ter uma disciplina associada.",
       },
@@ -45,6 +47,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true } 
 );
 
+// Hashing de senha antes de salvar o usuário
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next(); 
 
@@ -58,6 +61,7 @@ userSchema.pre("save", async function (next) {
   }
 });
 
+// Método para validar senha
 userSchema.methods.isValidPassword = async function (password) {
   try {
     return await bcrypt.compare(password, this.password); 
@@ -67,6 +71,7 @@ userSchema.methods.isValidPassword = async function (password) {
   }
 };
 
+// Método para retornar os dados do usuário sem a senha
 userSchema.methods.toJSON = function () {
   const user = this.toObject();
   delete user.password; 
